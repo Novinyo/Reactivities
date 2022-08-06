@@ -2,10 +2,18 @@ import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity } from "../models/activity";
+import { User, UserFormValues } from "../models/user";
 import { store } from "../stores/store";
 
 axios.defaults.baseURL = "https://localhost:5001/api";
 
+axios.interceptors.request.use((config:any) => {
+  const token = store.commonStore.token;
+
+  if(token) config.headers.Authorization = `Bearer ${token}`
+
+  return config;
+})
 axios.interceptors.response.use(
   async (response) => {
       return response;
@@ -14,11 +22,8 @@ axios.interceptors.response.use(
     const {data, status, config } = error.response!;
     switch (status) {
       case 400:
-        if(typeof data === 'string') {
-            toast.error(data);
-        }
           if(config.method === 'get' && data.errors.hasOwnPropert('id')){
-
+            history.push('/not-found')
           } 
           if(data.errors) { const modelStaterrors = [];
 
@@ -28,6 +33,8 @@ axios.interceptors.response.use(
                 }
             }
             throw modelStaterrors.flat();
+        } else {
+          toast.error(data);
         }
     
         break;
@@ -36,13 +43,13 @@ axios.interceptors.response.use(
         break;
       case 404:
         history.push('/notfound');
-        toast.error("Not found");
         break;
         case 500:
             store.commonStore.setServerError(data);
             history.push('/server-error');
             break;
     }
+    return Promise.reject(error);
   }
 );
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;
@@ -64,8 +71,15 @@ const Activities = {
   delete: (id: string) => requests.del<void>(`/activities/${id}`),
 };
 
+const Account = {
+  current: () => requests.get<User>('/account'),
+  login: (user: UserFormValues) => requests.post<User>('/account/login', user),
+  register: (user: UserFormValues) => requests.post<User>('/account/register', user),
+}
+
 const agent = {
   Activities,
+  Account
 };
 
 export default agent;
