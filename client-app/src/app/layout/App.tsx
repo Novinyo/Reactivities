@@ -15,6 +15,7 @@ import { useStore } from "../stores/store";
 import { useEffect } from "react";
 import LoadingComponent from "./LoadingComponent";
 import ModalContainer from "../common/Modals/ModalContainer";
+import ProfilePage from "../../features/profiles/ProfilePage";
 
 function App() {
 
@@ -45,6 +46,7 @@ function App() {
           <Route path="manage">
             <Route path=":id" element={<ActivityForm />} />
           </Route>
+          <Route path="/profiles/:username" element={<ProfilePage/>}/>
           <Route path="/errors" element={<TestErrors/>}/>
           <Route path="/server-error" element={<ServerError/>}/>
           <Route path="/login" element={<LoginForm/>}/>
