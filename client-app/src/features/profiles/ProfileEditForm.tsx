@@ -14,7 +14,7 @@ export default observer(function ProfileEditForm({setEditMode}:Props){
     const {profileStore: {profile, editProfile}} = useStore();
     return(
         <Formik initialValues={{displayName: profile?.displayName,
-        bio: profile?.bio}}
+        bio: (profile?.bio) ? profile.bio : ''}}
         onSubmit={values => {editProfile(values).then(() => {setEditMode(false)})}}
         validationSchema = {Yup.object({
             displayName: Yup.string().required()
